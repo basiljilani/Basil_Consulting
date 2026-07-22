@@ -1,26 +1,192 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------
+   Basil Consulting — design tokens
+   Dark-first. Pure black canvas so the 3D layer carries the light.
+------------------------------------------------------------------ */
+
+@theme {
+  /* Surfaces */
+  --color-void: #000000;
+  --color-ink: #05060a;
+  --color-elev-1: #0a0c12;
+  --color-elev-2: #10131c;
+
+  /* Text */
+  --color-bright: #f7f8f8;
+  --color-dim: #a1a8b3;
+  --color-faint: #6b7280;
+
+  /* Signature accent — "basil glow" */
+  --color-basil-100: #d8ffe9;
+  --color-basil-300: #86ffc0;
+  --color-basil-400: #4dfaa2;
+  --color-basil-500: #16e884;
+  --color-basil-600: #04b869;
+
+  /* Secondary — signal blue, used only for gradient depth */
+  --color-signal-400: #7aa2ff;
+  --color-signal-500: #4c7dff;
+  --color-signal-600: #2f5ce0;
+
+  /* Type */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --hairline: color-mix(in oklab, #ffffff 9%, transparent);
+  --hairline-strong: color-mix(in oklab, #ffffff 16%, transparent);
+  --glass: color-mix(in oklab, #ffffff 3.5%, transparent);
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  border-color: var(--hairline);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-void);
+  color: var(--color-bright);
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-basil-500);
+  color: #00160c;
+}
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-void);
+}
+::-webkit-scrollbar-thumb {
+  background: #1b1f2a;
+  border-radius: 999px;
+  border: 3px solid var(--color-void);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3040;
+}
+
+/* ---------- Focus ---------- */
+:focus-visible {
+  outline: 2px solid var(--color-basil-400);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ------------------------------------------------------------------
+   Utilities
+------------------------------------------------------------------ */
+
+/* Display type: tight, high-contrast, optical sizing on */
+@utility display {
+  font-optical-sizing: auto;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  font-weight: 500;
+}
+
+/* Monospace eyebrow labels */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-basil-400);
+}
+
+/* Hairline card with inner light */
+@utility panel {
+  background:
+    linear-gradient(to bottom, color-mix(in oklab, #fff 4%, transparent), transparent 55%),
+    var(--color-ink);
+  border: 1px solid var(--hairline);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklab, #fff 6%, transparent),
+    0 1px 40px -12px rgb(0 0 0 / 0.9);
+}
+
+/* Gradient text: bright -> basil */
+@utility text-gradient {
+  background: linear-gradient(
+    100deg,
+    var(--color-bright) 0%,
+    var(--color-bright) 45%,
+    var(--color-basil-300) 78%,
+    var(--color-basil-500) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Fine grid backdrop, fades toward the horizon */
+@utility grid-veil {
+  background-image:
+    linear-gradient(to right, var(--hairline) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--hairline) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 78%);
+}
+
+/* ------------------------------------------------------------------
+   Keyframes
+------------------------------------------------------------------ */
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Cross-fade used when the WebGL scene replaces its static stand-in */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-marquee {
+  animation: marquee 42s linear infinite;
+}
+
+/* ------------------------------------------------------------------
+   Reduced motion — honour it everywhere, including the 3D layer
+------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
